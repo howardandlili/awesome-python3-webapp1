@@ -110,3 +110,43 @@ class StringField(Field):
     #和char相对应，char是固定长度，字符串长度不够会自动补齐，varchar则是多长就是多长，但最长不能超过规定长度
     def __init__(self, name=None, primary_key=False, default=None, ddl='varchar(100)'):
         super().__init__(name, ddl, primary_key, default)
+class BooleanField(Field):
+
+    def __init__(self, name=None, default=False):
+        super().__init__(name, 'boolean', False, default)
+
+class IntegerField(Field):
+
+    def __init__(self, name=None, primary_key=False, default=0):
+        super().__init__(name, 'bigint', primary_key, default)
+
+class FloatField(Field):
+
+    def __init__(self, name=None, primary_key=False, default=0.0):
+        super().__init__(name, 'real', primary_key, default)
+
+class TextField(Field):
+
+    def __init__(self, name=None, default=None):
+        super().__init__(name, 'text', False, default)
+#对元类的理解我也不是很深刻，只能说点自己粗浅的看法，仅供参考
+#我们先捋一下继承关系吧，models.py中class User(Model)，这个继承很简单，大家都看的懂
+#class Model(dict, metaclass=ModelMetaclass)这个继承前半部分也简单，就是继承dict
+#而后半部分metaclass=ModelMetaclass，这才是难点，我觉得这不是单纯的继承关系
+#如果说User类是一个产品，那么User继承的这些父类就是这个产品生产线上的一道工序，而ModelMetaclass是一张加工图纸，配合最后一道工序来完成产品
+#我们知道object是所有类最终都会继承的类，所以我们可以把object比作产品原型
+#object需要经过3道加工工序才能变成最后我们想要的User类这个成品，这三道工序分别是dict，Model，User
+#负责这三道工序的分别是d哥、M哥、U哥，这三位哥们的工作很简单，就是从上一个哥们手里接过产品，加点东西然后交给下一个哥们
+#而Meta是个大神，大神怎么可能像上面三个哥们那样去流水线上干那么低级的活
+#所以他就画了一张叫ModelMetaclass的加工图纸，让拿到这张图纸的哥们照着这图纸加工就行了
+#那这图纸应该交给谁呢，Meta大神首先排除了d哥
+#因为d哥是厂里的老员工，虽然交代的任务他都能完成，但d哥缺乏创造力，思维僵化，看不懂Meta大神画的图纸
+#而M哥和U哥是刚毕业的大学生，可塑性非常好，图纸交给他们再合适不过了。那到底应该交给谁呢？
+#Meta大神首先想到了U哥，因为这张图纸是配合最后一道工序来加工的，所以交给U哥应该最合适。
+#但这时候厂长找到Meta大神说要再增加两条产品线，一条用来生产Blog类，由B哥负责最后一道工序，一条用来生产Comment类，由C哥负责最后一道工序
+#多了两条产品线，Meta大神的图纸需要重新画吗？当然不用，要不人家怎么叫大神呢。
+#只不过这样的话，Meta大神需要分别找U、B、C三位哥们把图纸给他们，这事儿太没效率了。
+#作为一个大神当然不能容忍这么没效率的做法，所以Meta大神想了一个好办法，那就是把图纸交给M哥，由M哥负责把图纸交给U、B、C三位哥们
+#但M哥也能看懂图纸，如果他傻乎乎的照着图纸加工一番，那会把产品搞的一团糟
+#所以Meta大神在图纸最前面加了一条说：“那个负责Model工序的哥们，不要照我的图纸加工，直接把图纸交给下一个哥们就好了。”
+#以上就是我对元类的理解，我试过去掉Model类中的元类，把元类加到User类中同样可行，大家可以自己试下
