@@ -65,6 +65,7 @@ async def select(sql, args, size=None):
 #基本上和select函数差不多，我就为不一样的地方做下注释
 #autocommit是自动提交的意思，不太明白在这里有什么用
 async def execute(sql,args,autocommit=True):
+    # execute方法只返回结果数，不返回结果集,用于insert,update这些SQL语句
     log(sql)
     async with __pool.get() as conn:
         if not autocommit:
