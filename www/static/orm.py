@@ -83,5 +83,30 @@ async def execute(sql,args,autocommit=True):
             if not autocommit:
                 #rollback是回滚的意思，那滚的是个什么玩意儿？不造啊
                 await conn.rollback()
-            raise
+                # raise不带参数，则把此处的错误往上抛;为了方便理解还是建议加e吧
+            raise e
         return affected
+#这个函数在元类中被引用，作用是创建一定数量的占位符
+def create_args_string(num):
+    L = []
+    for n in range(num):
+        L.append('?')
+    #比如说num=3，那L就是['?','?','?']，通过下面这句代码返回一个字符串'?,?,?'
+    return ','.join(L)
+#定义字段基类，后面各种各样的字段类都继承这个基类
+class Field(object):
+    def __init__(self,name,column_type,primary_key,default):
+        self.name = name                #字段名
+        self.colum_type = column_type   #字段类型
+        self.primary_key = primary_key  #主键
+        self.default = default          #默认值
+    #元类那节也有一个orm的例子，里面也有这个函数，好像是为了在命令行按照'<%s, %s:%s>'这个格式输出字段的相关信息
+    #注释掉之后会报错，不知道什么原因，估计在哪个地方会用到这个字符串，我暂时还没找到在哪儿
+    def __str__(self):
+        return '<%s, %s:%s>' % (self.__class__.__name__, self.column_type, self.name)
+#感觉这儿没什么好讲的，很简单吧，这部分内容会在models.py中引用，我会在那儿再做注释
+class StringField(Field):
+    #ddl是数据定义语言("data definition languages")，默认值是'varchar(100)'，意思是可变字符串，长度为100
+    #和char相对应，char是固定长度，字符串长度不够会自动补齐，varchar则是多长就是多长，但最长不能超过规定长度
+    def __init__(self, name=None, primary_key=False, default=None, ddl='varchar(100)'):
+        super().__init__(name, ddl, primary_key, default)
